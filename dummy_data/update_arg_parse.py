@@ -29,6 +29,7 @@ def update(model_name, sfx=''):
                 }
     opt_d = vars(opt)
     opt_d['model_name'] = model_name
+    opt_d['log_save_dir'] = opt.log_save_dir + '/%s' % opt.model_name
     opt_d['sfx'] = sfx
     if torch.cuda.is_available():
         opt_d['device'] = 'cuda'

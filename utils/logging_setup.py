@@ -48,10 +48,30 @@ def setup_logger_path():
     every time a new size appears, possibly leading to worse runtime performances.
     '''
 
-    # check if log folder exists
-    os.makedirs(opt.log_save_dir + '/%s' % opt.model_name, exist_ok=True)
-    # if not ops.exists(opt.log_save_dir):
-    #     os.mkdir(opt.log_save_dir)
+    try:
+        # check if log folder exists
+        os.makedirs(opt.log_save_dir + '_0')
+        opt.log_save_dir += '_0'
+    except FileExistsError:
+        rootdir, subdir = ops.split(opt.log_save_dir)
+        idx = 0
+        # check each folder with logs, if it contains for than 100 logs ->
+        # create a new folder with incremented index _idx
+        for subdirname in sorted(os.listdir(rootdir)):
+            if subdir == re.search(r'(.*)_\d*', subdirname).group(1):
+                subdir_idx = int(re.search(r'.*_(\d)*', subdirname).group(1))
+                if subdir_idx >= idx:
+                    if len(os.listdir(ops.join(rootdir, subdirname))) > 100:
+                        idx = subdir_idx + 1
+                    else:
+                        idx = subdir_idx
+        opt.log_save_dir += '_%d' % idx
+        os.makedirs(opt.log_save_dir, exist_ok=True)
+
+    # check how many files already there
+    # if len(os.listdir(opt.log_save_dir)) > 100:
+
+
 
     path_logging = ops.join(opt.log_save_dir, '%s_%s(%s)' % (opt.log_name,
                                                              filename,
