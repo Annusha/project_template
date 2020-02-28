@@ -55,7 +55,7 @@ parser.add_argument('--debug_freq', default=1, type=int)
 #######################################################################################
 ### VISDOM
 parser.add_argument('--viz', default=True, type=bool)
-parser.add_argument('--viz_env', default='test')
+parser.add_argument('--viz_env', default='main')
 parser.add_argument('--sanity_chk', default=False, type=bool)
 
 
