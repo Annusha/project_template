@@ -8,7 +8,6 @@ __date__ = 'February 2020'
 
 
 from torch.utils.data import Dataset
-from collections import defaultdict
 from tqdm import tqdm
 import os.path as ops
 import numpy as np

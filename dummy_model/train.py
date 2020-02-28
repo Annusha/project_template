@@ -14,8 +14,9 @@ import random
 import torch
 import time
 import copy
+import os
 
-from utils.util_functions import dir_check, adjust_lr, Meter
+from utils.util_functions import adjust_lr, Meter
 from utils.model_saver import ModelSaver
 from utils.logging_setup import logger
 from dummy_model.test import testing
@@ -60,7 +61,7 @@ def training(train_dataset, **kwargs):
             adjustable_lr = adjust_lr(optimizer, adjustable_lr)
 
         if epoch == 0:
-            testing(train_dataset, model, loss, epoch=0, mode='train')
+            testing(train_dataset, model, loss, epoch=-1, mode='train', time_id=train_start_time)
 
         end = time.time()
 
@@ -97,11 +98,11 @@ def training(train_dataset, **kwargs):
 
         if opt.test_freq and epoch % opt.test_freq == 0:
             # test the model every opt.test_freq epoch
-            testing(train_dataset, model, loss, epoch=epoch, mode='train')
+            testing(train_dataset, model, loss, epoch=epoch, mode='train', time_id=train_start_time)
 
         if opt.save_model and epoch % opt.save_model == 0:
             if opt.test_val:
-                check_val = testing(kwargs['val_dataset'], model, loss, epoch=epoch, mode='val')
+                check_val = testing(kwargs['val_dataset'], model, loss, epoch=epoch, mode='val', time_id=train_start_time)
                 if model_saver_val.check(check_val):
                     save_dict = {'epoch': epoch,
                                  'state_dict': copy.deepcopy(model.state_dict()),
@@ -117,7 +118,7 @@ def training(train_dataset, **kwargs):
         save_dict = {'epoch': epoch,
                      'state_dict': model.state_dict(),
                      'optimizer': optimizer.state_dict()}
-        dir_check(join(opt.storage, 'models', opt.model_name, opt.log_name))
+        os.makedirs(join(opt.storage, 'models', opt.model_name, opt.log_name), exist_ok=True)
         torch.save(save_dict,
                    join(opt.storage, 'models', opt.model_name, opt.log_name, 'last_%d.pth.tar' % epoch))
 

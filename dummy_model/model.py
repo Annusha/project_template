@@ -6,12 +6,12 @@
 __author__ = 'Anna Kukleva'
 __date__ = 'February 2020'
 
-import torch
-import torch.nn as nn
 import torch.nn.functional as F
+import torch.nn as nn
+import torch
 
-from utils.arg_parse import opt
 from utils.logging_setup import logger
+from utils.arg_parse import opt
 
 
 class DummyModel(nn.Module):

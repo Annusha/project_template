@@ -13,6 +13,7 @@ import numpy as np
 import datetime
 import logging
 import random
+import visdom
 import torch
 import sys
 import os
@@ -30,6 +31,15 @@ ch.setLevel(logging.DEBUG)
 filename = sys.argv[0]
 search = re.search(r'\/*(\w*).py', filename)
 filename = search.group(1)
+
+
+class Viz:
+    def __init__(self):
+        self.env = None
+
+
+viz = Viz()
+
 
 def setup_logger_path():
     global logger, viz
@@ -68,14 +78,10 @@ def setup_logger_path():
         opt.log_save_dir += '_%d' % idx
         os.makedirs(opt.log_save_dir, exist_ok=True)
 
-    # check how many files already there
-    # if len(os.listdir(opt.log_save_dir)) > 100:
-
-
-
-    path_logging = ops.join(opt.log_save_dir, '%s_%s(%s)' % (opt.log_name,
-                                                             filename,
-                                                             str(datetime.datetime.now()).split('.')[0]))
+    path_logging = ops.join(opt.log_save_dir, '%s.%s_%s(%s)' % (opt.viz_env,
+                                                                opt.log_name,
+                                                                filename,
+                                                                str(datetime.datetime.now()).split('.')[0]))
 
     # close previously openned logging files if exist:
     for handler in logger.handlers:
@@ -93,6 +99,11 @@ def setup_logger_path():
     fh.setFormatter(formatter)
     logger.addHandler(ch)
     logger.addHandler(fh)
+
+    if opt.viz:
+        viz.env = visdom.Visdom(server='http://localhost', port=8123, env=opt.viz_env) #, log_to_filename=opt.viz_path)
+        assert viz.env.check_connection(timeout_seconds=3), \
+            'No connection could be formed quickly'
 
     return logger
 

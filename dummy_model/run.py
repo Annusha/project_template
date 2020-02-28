@@ -38,7 +38,7 @@ def pipeline(model_name, sfx):
 
 def experiment1():
     model_name = 'exp1'
-    sfx = str('sfx')
+    sfx = str('sfx2')
     pipeline(model_name, sfx=sfx)
 
 

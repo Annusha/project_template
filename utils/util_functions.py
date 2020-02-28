@@ -6,19 +6,28 @@
 __author__ = 'Anna Kukleva'
 __date__ = 'February 2020'
 
-import os
-import re
-import time
-import torch
-import os.path as ops
-import numpy as np
 
+import os.path as ops
+import torch
+import time
+
+from utils.logging_setup import logger
 from utils.arg_parse import opt
 
 
 class Meter(object):
-    def __init__(self):
+    def __init__(self, mode='', name=''):
+        self.mode = mode
+        self.name = name
         self.val, self.avg, self.sum, self.count = 0, 0, 0, 0
+
+    def log(self):
+        logger.debug('%s %s: %f' % (self.mode.upper(), self.name, self.avg))
+
+    def viz_dict(self):
+        return {
+            '%s/%s' % (self.name, self.mode.upper()): self.avg
+        }
 
     def reset(self):
         self.val, self.avg, self.sum, self.count = 0, 0, 0, 0
@@ -105,16 +114,3 @@ def timing(f):
                         (time2-time1)))
         return ret
     return wrap
-
-
-def dir_check(path):
-    """If folder given path does not exist it is created"""
-    if path == '':
-        return
-    else:
-        try:
-            if not os.path.exists(path):
-                os.mkdir(path)
-        except FileNotFoundError:
-            dir_check(os.path.split(path)[0])
-            dir_check(path)

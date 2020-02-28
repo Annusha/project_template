@@ -7,20 +7,16 @@ __author__ = 'Anna Kukleva'
 __date__ = 'February 2020'
 
 
-from collections import defaultdict, Counter
-from scipy.special import expit, softmax
-import torch.nn.functional as F
-import os.path as ops
 import numpy as np
+import warnings
 import torch
 
-from utils.util_functions import dir_check
 from utils.logging_setup import logger
-from utils.arg_parse import opt
 
 
 class Precision(object):
-    def __init__(self):
+    def __init__(self, mode=''):
+        self.mode = mode
         self._top1 = 0
         self._top5 = 0
         self.total = 0
@@ -28,12 +24,38 @@ class Precision(object):
         self.preds = []
         self.output = dict()
 
-    def _to_numpy(self, tensor):
-        if isinstance(tensor, torch.Tensor):
-            if tensor.device.type == 'cuda':
-                tensor = tensor.cpu()
-            tensor = tensor.numpy()
-        return tensor
+    def log(self):
+        logger.debug('total items during test: %d' % self.total)
+        logger.debug('%s pr@1: %f' % (self.mode.upper(), self.top1()))
+        logger.debug('%s pr@5: %f' % (self.mode.upper(), self.top5()))
+
+    def viz_dict(self):
+        return {
+            'pr@1/%s' % self.mode.upper(): self.top1(),
+            'pr@5/%s' % self.mode.upper(): self.top5(),
+        }
+
+    def _to_numpy(self, a):
+        torch_types = []
+        torch_types.append(torch.Tensor)
+        torch_types.append(torch.nn.Parameter)
+        if isinstance(a, list):
+            return np.array(a)
+        if len(torch_types) > 0:
+            if isinstance(a, torch.autograd.Variable):
+                # For PyTorch < 0.4 comptability.
+                warnings.warn(
+                    "Support for versions of PyTorch less than 0.4 is deprecated "
+                    "and will eventually be removed.", DeprecationWarning)
+                a = a.data
+        for kind in torch_types:
+            if isinstance(a, kind):
+                # For PyTorch < 0.4 comptability, where non-Variable
+                # tensors do not have a 'detach' method. Will be removed.
+                if hasattr(a, 'detach'):
+                    a = a.detach()
+                return a.cpu().numpy()
+        return a
 
     def update_probs(self, pr_probs=None, gt=None, pr_classes=None, **kwargs):
         '''

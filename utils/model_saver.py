@@ -7,12 +7,10 @@ __author__ = 'Anna Kukleva'
 __date__ = 'February 2020'
 
 
+from collections import defaultdict
+import os.path as ops
 import torch
 import os
-import os.path as ops
-from collections import defaultdict
-
-from utils.util_functions import dir_check
 
 
 class ModelSaver:
@@ -29,7 +27,7 @@ class ModelSaver:
         self.saved = defaultdict(dict)
 
         self.path = path
-        dir_check(path)
+        os.makedirs(path, exist_ok=True)
 
     def check(self, val:dict):
         # key identify the type of the model
@@ -64,7 +62,7 @@ class ModelSaver:
         # save models on the disk
         # delete models from the disk if the were worse
         for key in self.eval:
-            dir_check(ops.join(self.path, key))
+            os.makedirs(ops.join(self.path, key), exist_ok=True)
             saved = list(self.saved[key].values())
             for filename in os.listdir(ops.join(self.path, key)):
                 if ops.join(self.path, key, filename) not in saved:
