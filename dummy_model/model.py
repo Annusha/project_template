@@ -22,6 +22,7 @@ class DummyModel(nn.Module):
         self.n_classes = n_classes
 
         self.fc = nn.Linear(opt.i_dim, n_classes)
+        self.dropout = nn.Dropout(p=opt.dropout)
 
     def forward(self, input):
         x = input['features'].float()

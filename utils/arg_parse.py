@@ -40,7 +40,7 @@ parser.add_argument('--optim', default='adam',
                     help='optimizer for the network: adam | sgd')
 
 #######################################################################################
-### VALIDATION & TEST 
+### VALIDATION & TEST
 parser.add_argument('--test_freq', default=1, type=int)
 
 #######################################################################################

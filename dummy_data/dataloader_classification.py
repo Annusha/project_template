@@ -50,4 +50,7 @@ class DummyFeaturesDataset(Dataset):
         return len(self.features)
 
     def __getitem__(self, sample_idx):
-        return {'features': self.features[sample_idx], 'labels': self.labels[sample_idx]}
+        output = {}
+        output['features'] = self.features[sample_idx]
+        output['labels'] = self.labels[sample_idx]
+        return output
